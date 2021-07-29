@@ -7,10 +7,7 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.plugin.PluginManager.INSTANCE.disable
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.contact.Group
-import net.mamoe.mirai.contact.getMember
-import net.mamoe.mirai.contact.nameCardOrNick
-import net.mamoe.mirai.contact.remarkOrNameCardOrNick
+import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.utils.info
 
 object Plugin : KotlinPlugin(
@@ -62,9 +59,13 @@ object Plugin : KotlinPlugin(
         collector.saveData(dataFolder)
     }
 
-    fun loadAlias() {
+    private fun loadAlias() {
         Config.include.forEach {
             aliasMap[it] = Config.alias.getOrDefault(it, group.getMember(it)?.nameCardOrNick)
         }
+    }
+
+    fun getAlias(member: Member) : String {
+        return aliasMap[member.id] ?: member.nick
     }
 }

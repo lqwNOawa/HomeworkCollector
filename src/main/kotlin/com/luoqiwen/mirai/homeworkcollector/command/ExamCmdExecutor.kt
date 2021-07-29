@@ -1,6 +1,7 @@
 package com.luoqiwen.mirai.homeworkcollector.command
 
 import com.luoqiwen.mirai.homeworkcollector.Plugin
+import com.luoqiwen.mirai.homeworkcollector.data.Config
 import com.luoqiwen.mirai.homeworkcollector.data.Lang
 import com.luoqiwen.mirai.homeworkcollector.interact.UserNotifier
 import com.luoqiwen.mirai.homeworkcollector.workinstance.ExamTask
@@ -11,15 +12,18 @@ import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.MessageChain
 import kotlin.random.Random
 
+
 object ExamCmdExecutor : CommandExecutor {
     override suspend fun execute(cmd: List<String>, sender: Member, inGroup: Boolean) {
         when (cmd[1]) {
+            // #exam push <arg>
             "push" -> {
                 if (Plugin.collector.examTasks.isEmpty()) {
                     UserNotifier.notifyUser(Lang.Exam_noUploaded.deserializeMiraiCode(), sender, inGroup)
                     return
                 }
 
+                // #exam push random
                 if (cmd[2] == "random") {
                     val random = Random(sender.id)
                     val keyIndex = random.nextInt(Plugin.collector.examTasks.size)
@@ -29,6 +33,8 @@ object ExamCmdExecutor : CommandExecutor {
                     val msg = getTaskMessageChain(sender, ExamTask.generateId(sender, valueIndex))
                     UserNotifier.notifyAdmins(msg)
                 }
+
+                // #exam push all
                 else if (cmd[2] == "all") {
                     Plugin.collector.examTasks.forEach { (member, list) ->
                         list.forEach {
@@ -39,6 +45,8 @@ object ExamCmdExecutor : CommandExecutor {
                         }
                     }
                 }
+
+                // #exam push id
                 else {
                     val task = ExamTask.getExamTask(cmd[2])
 
@@ -52,20 +60,28 @@ object ExamCmdExecutor : CommandExecutor {
                     UserNotifier.notifyAdmins(getTaskMessageChain(sender, cmd[2]))
                 }
             }
+            // #exam pass <id> <remark>
             "pass" -> {
-
+                val task = ExamTask.getExamTask(cmd[2])
+                task?.examSuccess(sender, cmd[3])
             }
+            // #exam fail <id> <remark>
             "fail" -> {
-
+                val task = ExamTask.getExamTask(cmd[2])
+                task?.examFail(sender, cmd[3])
             }
         }
     }
 
-    override fun isValid(cmd: List<String>): Boolean {
-        if (cmd.size < getMinArgLength())
+    override fun isValid(cmd: List<String>, sender: Member): Boolean {
+        if (!Config.admins.contains(sender.id) || cmd.size < getMinArgLength() || cmd[0] != "exam" || !arg1List.contains(cmd[1]))
             return false
 
-        return cmd[0] == "exam" && arg1List.contains(cmd[1])
+        return when (cmd[1]) {
+            "push" -> cmd.size == 3
+            "pass", "fail" -> cmd.size == 4
+            else -> false
+        }
     }
 
     override fun getMinArgLength(): Int {
@@ -93,7 +109,7 @@ object ExamCmdExecutor : CommandExecutor {
 
         return Lang.applyPlaceHolderList(
             Lang.Exam_task,
-            Plugin.aliasMap[member.id] ?: member.nick,
+            Plugin.getAlias(member),
             resources,
             task.generateId()
         )

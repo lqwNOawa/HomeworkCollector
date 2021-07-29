@@ -7,7 +7,7 @@ object NotifyCmdExecutor : CommandExecutor {
         TODO("Not yet implemented")
     }
 
-    override fun isValid(cmd: List<String>): Boolean {
+    override fun isValid(cmd: List<String>, sender: Member): Boolean {
         TODO("Not yet implemented")
     }
 

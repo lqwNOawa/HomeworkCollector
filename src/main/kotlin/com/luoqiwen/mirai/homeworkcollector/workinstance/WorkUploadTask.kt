@@ -10,7 +10,7 @@ import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.FileMessage
 import net.mamoe.mirai.message.data.Image
 
-class WorkUploadTask(val member: Member) {
+class WorkUploadTask(val member: Member, val task: CollectionTask) {
     init {
         Plugin.launch {
             for (i in 1 until Config.uploadTimeout) {
@@ -20,7 +20,7 @@ class WorkUploadTask(val member: Member) {
                     }
                 delay(1000)
             }
-            terminate()
+            cancel()
         }
     }
     val uploadedImages = mutableSetOf<Image>()
@@ -48,8 +48,12 @@ class WorkUploadTask(val member: Member) {
         return ExamTask(this)
     }
 
-    fun terminate() : ExamTask {
+    fun cancel() {
         Plugin.collector.uploadingMap.remove(member.id)
+    }
+
+    fun terminate() : ExamTask {
+        cancel()
         val examtask = toExamTask()
         (Plugin.collector.examTasks.getOrPut(member.id) { mutableSetOf()}).add(examtask)
         return examtask

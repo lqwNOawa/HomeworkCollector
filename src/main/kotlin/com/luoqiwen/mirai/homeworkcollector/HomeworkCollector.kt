@@ -3,21 +3,26 @@ package com.luoqiwen.mirai.homeworkcollector
 import com.luoqiwen.mirai.homeworkcollector.command.Commands
 import com.luoqiwen.mirai.homeworkcollector.data.Lang
 import com.luoqiwen.mirai.homeworkcollector.interact.UserNotifier
+import com.luoqiwen.mirai.homeworkcollector.workinstance.CollectionTask
 import com.luoqiwen.mirai.homeworkcollector.workinstance.ExamTask
 import com.luoqiwen.mirai.homeworkcollector.workinstance.WorkUploadTask
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.*
 import java.io.*
+import java.time.LocalDate
 
 class HomeworkCollector {
-    var uploadingMap: MutableMap<Long, WorkUploadTask> = mutableMapOf()
+    var uploadingMap: MutableMap<Long, WorkUploadTask> = mutableMapOf()//uploading状态
     var examTasks: MutableMap<Long, MutableSet<ExamTask>> = mutableMapOf()
+    var collectionTaskMap: MutableMap<String, CollectionTask> = mutableMapOf()//TODO: read and write
+    var delayMap: MutableMap<Pair<Long, CollectionTask>, Int> = mutableMapOf()
 
     fun loadData(folder: File) {
         //TODO
         var uploadingMap_oos: ObjectInputStream? = null
         var examtasks_oos: ObjectInputStream? = null
+
         try  {
             uploadingMap_oos = ObjectInputStream(
                 BufferedInputStream(
@@ -114,6 +119,11 @@ class HomeworkCollector {
         }
     }
 
+    fun getRealDeadline(member: Member, task: CollectionTask) : LocalDate {
+        val delay = delayMap.getOrDefault(Pair(member.id, task), 0).toLong()
+        return task.deadline.plusDays(delay)
+    }
+
     private suspend fun processImg(img: Image, member: Member, inGroup: Boolean) {
         val id = uploadingMap[member.id]?.addImg(img)
 
@@ -133,7 +143,7 @@ class HomeworkCollector {
             val args = cmd.substring(1).split(" ")
             if (args.isNotEmpty()) {
                 val executor = Commands.valueOf(args[0]).executor
-                if (executor.isValid(args)) {
+                if (executor.isValid(args, member)) {
                     executor.execute(args, member, inGroup)
                     return
                 }
@@ -141,6 +151,9 @@ class HomeworkCollector {
         }
 
         UserNotifier.notifyUser(Lang.applyPlaceHolder(Lang.Cmd_invalid, cmd).deserializeMiraiCode(), member, inGroup)
+        UserNotifier.notifyUser(Lang.applyPlaceHolderList(
+            Lang.Help
+        ), member, inGroup)
     }
 
     private fun isAtMember(msg: MessageChain, member: Member) : Boolean {
