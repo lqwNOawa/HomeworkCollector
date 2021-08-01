@@ -1,19 +1,17 @@
 #!/usr/bin/env sh
 
 #
-# Copyright 2015 the original author or authors.
+# HomeworkCollector - Mirai 平台的以自动收集、分发作业以检查为功能的插件(软件)
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# 版权所有（C） 2021-2022 罗棨文
+# 　　本程序为自由软件，在自由软件联盟发布的GNU通用公共许可协议的约束下，你可以对其进行再发布及修改。协议版本为第三版或（随你）更新的版本。
+# 　　我们希望发布的这款程序有用，但不保证，甚至不保证它有经济价值和适合特定用途。详情参见GNU通用公共许可协议。
+# 　　你理当已收到一份GNU通用公共许可协议的副本，如果没有，请查阅<http://www.gnu.org/licenses/>
 #
-#      https://www.apache.org/licenses/LICENSE-2.0
+# 　　Email: Aluoqiwen@163.com
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+# https://github.com/lqwNOawa/HomeworkCollector/blob/master/LICENSE
 #
 
 ##############################################################################

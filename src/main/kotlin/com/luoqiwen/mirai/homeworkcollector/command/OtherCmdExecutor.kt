@@ -12,23 +12,33 @@
  * https://github.com/lqwNOawa/HomeworkCollector/blob/master/LICENSE
  */
 
-package com.luoqiwen.mirai.homeworkcollector.interact
+package com.luoqiwen.mirai.homeworkcollector.command
 
 import com.luoqiwen.mirai.homeworkcollector.Plugin
-import com.luoqiwen.mirai.homeworkcollector.data.Config
+import com.luoqiwen.mirai.homeworkcollector.data.Lang
+import com.luoqiwen.mirai.homeworkcollector.interact.UserNotifier
 import kotlinx.coroutines.launch
-import net.mamoe.mirai.event.EventHandler
-import net.mamoe.mirai.event.ListenerHost
-import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 
-object GroupMsgListener : ListenerHost {
-    @EventHandler
-    fun GroupMessageEvent.onMsg() {
+object OtherCmdExecutor : CommandExecutor {
+    override fun execute(cmd: List<String>, sender: Member, inGroup: Boolean) {
         Plugin.launch {
-            if (group.id == Config.group && Config.include.contains(sender.id)) {
-                Plugin.debug("Group interact detected: ${sender.id}")
-                Plugin.collector.processMsg(message, sender, true)
-            }
+            UserNotifier.notifyUser(Lang.applyPlaceHolder(
+                Lang.Cmd_invalid, cmd.joinToString(" ")
+            ).deserializeMiraiCode(), sender, inGroup)
+
+            UserNotifier.notifyUser(Lang.applyPlaceHolderList(
+                Lang.Help
+            ), sender, inGroup)
         }
+    }
+
+    override fun isValid(cmd: List<String>, sender: Member): Boolean {
+        return true
+    }
+
+    override fun getMinArgLength(): Int {
+        return 0
     }
 }

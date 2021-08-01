@@ -12,23 +12,15 @@
  * https://github.com/lqwNOawa/HomeworkCollector/blob/master/LICENSE
  */
 
-package com.luoqiwen.mirai.homeworkcollector.interact
+package com.luoqiwen.mirai.homeworkcollector.workinstance
 
-import com.luoqiwen.mirai.homeworkcollector.Plugin
-import com.luoqiwen.mirai.homeworkcollector.data.Config
-import kotlinx.coroutines.launch
-import net.mamoe.mirai.event.EventHandler
-import net.mamoe.mirai.event.ListenerHost
-import net.mamoe.mirai.event.events.GroupMessageEvent
+import com.luoqiwen.mirai.homeworkcollector.data.Lang
 
-object GroupMsgListener : ListenerHost {
-    @EventHandler
-    fun GroupMessageEvent.onMsg() {
-        Plugin.launch {
-            if (group.id == Config.group && Config.include.contains(sender.id)) {
-                Plugin.debug("Group interact detected: ${sender.id}")
-                Plugin.collector.processMsg(message, sender, true)
-            }
-        }
-    }
+enum class TaskStatus(val lang: String) {
+    Finished(Lang.Status_Finished),
+    UnderExam(Lang.Status_UnderExam),
+    Unfinished(Lang.Status_Unfinished),
+    TimedOut(Lang.Status_TimedOut),
+    Operating(Lang.Status_Operating),
+    None(Lang.Status_None)
 }
